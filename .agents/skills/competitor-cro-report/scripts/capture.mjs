@@ -1,7 +1,5 @@
 import { chromium } from 'playwright';
 
-// Este script foi projetado para capturar prints perfeitos de landin pages
-// Ele burla SSL, processa lazy-loads e impede que "fixed headers" quebrem o layout (100vh)
 async function capture(url, name) {
   const browser = await chromium.launch({ headless: true }); 
   const context = await browser.newContext({ 
@@ -14,27 +12,28 @@ async function capture(url, name) {
     await page.goto(url, { waitUntil: 'load', timeout: 60000 });
     console.log(`[SKILL: CRO] URL acessada: ${url}`);
     
-    // Função que destrói popups ativamente, varrendo texto e z-index
+    // Perfurador Nativo de Iframes e Shadow DOM do Playwright para clicar em Aceitar Cookies
     const nukePopups = async () => {
-        await page.evaluate(() => {
-            // Tenta clicar em "Aceitar"
-            const btns = Array.from(document.querySelectorAll('button, a, div[role="button"], span'));
-            btns.forEach(btn => {
-                const text = (btn.innerText || '').toLowerCase().trim();
-                if (['aceitar', 'aceito', 'concordo', 'entendi', 'aceitar cookies', 'permitir todos', 'aceitar todos'].includes(text)) {
-                    if (btn.tagName === 'A') btn.removeAttribute('href');
-                    try { btn.click(); } catch(e){}
+        try {
+            for (const frame of page.frames()) {
+                const acceptBtn = frame.locator('button:has-text("Aceitar"), button:has-text("Concordar"), button:has-text("Entendi"), a:has-text("Aceitar"), div[role="button"]:has-text("Aceitar")').first();
+                if (await acceptBtn.count() > 0 && await acceptBtn.isVisible()) {
+                    await acceptBtn.click({ force: true, timeout: 500 }).catch(()=>{});
                 }
+            }
+        } catch(e) {}
+        
+        // CSS Fallback
+        await page.evaluate(() => {
+            const killTags = ['[id*="cookie"]', '[class*="cookie"]', '[id*="adopt"]', '[class*="adopt"]', '[id*="consent"]', '[class*="consent"]', 'iframe[src*="chat"]', 'iframe[src*="whatsapp"]', '.whatsapp-button', '.blip-chat-container'];
+            document.querySelectorAll(killTags.join(',')).forEach(e => {
+                e.style.setProperty('display', 'none', 'important');
             });
-            // Oculta blocos fixed/sticky que falem de cookies/lgpd/consentimento
-            Array.from(document.querySelectorAll('*')).forEach(el => {
-                const style = window.getComputedStyle(el);
-                if (style.position === 'fixed' || style.position === 'sticky') {
-                    const text = (el.innerText || '').toLowerCase();
-                    const idCls = (el.id + ' ' + el.className).toLowerCase();
-                    if (text.includes('cookie') || text.includes('privacidade') || text.includes('lgpd') || text.includes('consentimento') || idCls.includes('chat') || idCls.includes('whatsapp')) {
-                        el.style.setProperty('display', 'none', 'important');
-                    }
+            // Oculta iframes fixos na borda que geralmente sao chatbots/cookies teimosos
+            document.querySelectorAll('iframe').forEach(ifr => {
+                const style = window.getComputedStyle(ifr);
+                if ((style.position === 'fixed' || style.position === 'absolute') && parseInt(style.zIndex||0) > 50) {
+                    ifr.style.setProperty('display', 'none', 'important');
                 }
             });
         });
@@ -43,7 +42,7 @@ async function capture(url, name) {
     await nukePopups();
     await page.waitForTimeout(1000);
     
-    // Injeta CSS para desligar animações e revelar todo o conteúdo instantaneamente
+    // Injeta CSS basico para revelar animacoes
     await page.evaluate(() => {
         const style = document.createElement('style');
         style.innerHTML = `
@@ -55,8 +54,7 @@ async function capture(url, name) {
             }
             html, body {
                 height: auto !important;
-                max-height: none !important;
-                overflow: visible !important;
+                min-height: 100% !important;
             }
             [data-aos], .elementor-invisible, .fade-in, .lazy {
                 opacity: 1 !important;
@@ -67,39 +65,50 @@ async function capture(url, name) {
         document.head.appendChild(style);
     });
     
-    // Scroll suave até o rodapé para engatilhar as imagens (lazy load)
+    // Rola a pagina destravando o scroll interno lazy-loaded
     let prevHeight = 0;
     while(true) {
         await nukePopups();
         const curHeight = await page.evaluate(() => {
-            window.scrollBy({ top: 600, behavior: 'auto' });
-            return document.documentElement.scrollTop;
+            window.scrollBy({ top: 800, behavior: 'auto' });
+            return document.documentElement.scrollTop || document.body.scrollTop;
         });
         await page.waitForTimeout(600); 
         
-        const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+        const scrollHeight = await page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
         const windowHeight = await page.evaluate(() => window.innerHeight);
-        if(curHeight + windowHeight >= scrollHeight - 50 || curHeight === prevHeight) {
+        if((curHeight + windowHeight) >= (scrollHeight - 50) || curHeight === prevHeight) {
             break;
         }
         prevHeight = curHeight;
     }
     
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(3000);
     
-    // Converte menus 'fixed' e 'sticky' para 'absolute' para prevenir o bug fantasma na costura
+    // Obliterador supremo de amarras (Liberta o Header ao Footer do Fullpage: true)
     await page.evaluate(() => {
         const elements = document.querySelectorAll('*');
         elements.forEach(el => {
-            const computedStyle = window.getComputedStyle(el);
-            if (computedStyle.position === 'fixed' || computedStyle.position === 'sticky') {
+            const style = window.getComputedStyle(el);
+            // Destrava conteineres de scroll limitados a 100vh
+            if (style.overflow === 'hidden' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                el.style.setProperty('overflow', 'visible', 'important');
+            }
+            if (style.height === '100vh' || style.maxHeight === '100vh' || (style.height.includes('px') && parseInt(style.height) === window.innerHeight)) {
+                el.style.setProperty('height', 'auto', 'important');
+                el.style.setProperty('max-height', 'none', 'important');
+            }
+            // Corrige overlays sticky costurados nativamente
+            if (style.position === 'fixed' || style.position === 'sticky') {
                 el.style.setProperty('position', 'absolute', 'important');
             }
         });
         window.scrollTo(0, 0); 
     });
     
-    // Playwright Full Page normal (quebra nativamente as alturas corretas sem esticar o 100vh)
+    await page.waitForTimeout(1000); // Aguarda layout rebater
+
+    // Playwright Full Page normal para tirar o print da extensao recriada
     await page.screenshot({ path: name, fullPage: true });
     console.log(`[SKILL: CRO] Artefato salvo com sucesso: ${name}`);
   } catch(e) {

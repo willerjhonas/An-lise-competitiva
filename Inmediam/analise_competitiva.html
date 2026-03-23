@@ -65,13 +65,24 @@
         background-color: #e8e6dc;
         font-family: 'Poppins', Arial, sans-serif;
       }
+      .image-wrapper {
+        width: 100%;
+        height: 600px; 
+        overflow-y: auto; 
+        border: 2px solid #eaeaea;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        background: #f9f9f9;
+        margin-top: 15px;
+      }
+      .image-wrapper::-webkit-scrollbar { width: 8px; }
+      .image-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+      .image-wrapper::-webkit-scrollbar-thumb { background: #cdcdcd; border-radius: 8px; }
+      .image-wrapper::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
       .screenshot {
         width: 100%;
-        border: 1px solid #b0aea5;
-        border-radius: 8px;
-        margin: 15px 0;
+        height: auto;
         display: block;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       }
       .nav-bar {
         position: sticky;
@@ -130,7 +141,9 @@
         <p><strong>Value Proposition (Proposição de Valor):</strong> "O sistema imobiliário que simplifica sua gestão."</p>
     </div>
     
-    <img src="jetimob_screenshot.png" alt="Print completo do site da Jetimob" class="screenshot">
+    <div class="image-wrapper">
+        <img src="jetimob_screenshot.png" alt="Print completo do site da Jetimob" class="screenshot">
+    </div>
 
     <ul>
         <li><strong>Pontos Fortes de CRO:</strong>
@@ -155,7 +168,9 @@
         <p><strong>Value Proposition:</strong> "Aluguel sem fiador, rápido e garantido."</p>
     </div>
     
-    <img src="credpago_screenshot.png" alt="Print completo do site da CredPago" class="screenshot">
+    <div class="image-wrapper">
+        <img src="credpago_screenshot.png" alt="Print completo do site da CredPago" class="screenshot">
+    </div>
 
     <ul>
         <li><strong>Pontos Fortes de CRO:</strong>
@@ -180,7 +195,9 @@
         <p><strong>Value Proposition:</strong> "Garantia Digital de Aluguel sem fiador. Total garantia para o proprietário e facilidade para o inquilino."</p>
     </div>
     
-    <img src="avalyst_screenshot.png" alt="Print completo do site da Avalyst" class="screenshot">
+    <div class="image-wrapper">
+        <img src="avalyst_screenshot.png" alt="Print completo do site da Avalyst" class="screenshot">
+    </div>
 
     <ul>
         <li><strong>Pontos Fortes de CRO:</strong>
@@ -200,7 +217,9 @@
     <h2 id="velo">4. Velo</h2>
     <p>Também do segmento de fiança e garantia para locações rápidas.</p>
     
-    <img src="velo.png" alt="Print completo do site da Velo" class="screenshot">
+    <div class="image-wrapper">
+        <img src="velo.png" alt="Print completo do site da Velo" class="screenshot">
+    </div>
 
     <ul>
         <li><strong>Pontos Fortes de CRO (Geral no App/Ads):</strong> A Velo costuma trabalhar muito bem o senso de urgência ("Alugue em poucas horas").</li>

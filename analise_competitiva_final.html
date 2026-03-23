@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Competitiva - InMediam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-glass: rgba(30, 41, 59, 0.7);
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 40px;
+            background-image: radial-gradient(circle at top right, var(--accent-glow) 0%, transparent 40%);
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header { border-bottom: 1px solid var(--border); padding-bottom: 40px; margin-bottom: 40px; }
+        h1 { font-size: 2.8rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; }
+        .subtitle { color: var(--accent); font-weight: 600; font-size: 1.25rem; text-transform: uppercase; letter-spacing: 2px; }
+        .desc { color: var(--text-muted); max-width: 600px; margin-top: 15px; line-height: 1.6; }
+
+        .section-title { font-size: 1.75rem; margin: 50px 0 25px; font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        
+        /* Tabela Comparativa */
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 12px; overflow: hidden; }
+        .comparison-table th, .comparison-table td { padding: 18px 20px; text-align: center; border: 1px solid var(--border); }
+        .comparison-table th { background: var(--surface); font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+        .comparison-table th:first-child, .comparison-table td:first-child { text-align: left; background: var(--surface); font-weight: 500; width: 30%; }
+        .comparison-table tr:hover { background: rgba(255,255,255,0.02); }
+        .check { color: var(--success); font-size: 1.2rem; font-weight: 800; }
+        .cross { color: var(--danger); font-size: 1.2rem; font-weight: 800; }
+        .target-col { background: rgba(59, 130, 246, 0.1) !important; color: var(--accent); font-weight: 800;}
+
+        /* Grid de Concorrentes: Layout Dividido (Imagem e Infos) */
+        .competitor-list { display: flex; flex-direction: column; gap: 40px; }
+        .competitor-row {
+            display: grid;
+            grid-template-columns: 350px 1fr 300px; /* Print Full Page | Geral | Insights */
+            gap: 25px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            align-items: stretch;
+        }
+
+        /* Full Page Scroll Container */
+        .full-page-scroll {
+            width: 100%;
+            height: 450px;
+            overflow-y: scroll;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            position: relative;
+        }
+        .full-page-scroll img { width: 100%; height: auto; display: block; }
+        /* Notice para o usuário saber que tá renderizando */
+        .render-notice { position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); color: #333; font-size:0.9rem; text-align:center; padding: 20px;}
+
+        .comp-info { display: flex; flex-direction: column; justify-content: space-between; }
+        .comp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;}
+        .comp-header h3 { font-size: 1.8rem; }
+        .badge { background: var(--bg); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); text-transform: uppercase;}
+        
+        .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .metric { font-size: 0.9rem; }
+        .metric-label { color: var(--text-muted); }
+        .metric-value { font-weight: 600; color: var(--text-main); margin-top: 5px; }
+        .score-bar-container { background: var(--bg); border-radius: 4px; height: 6px; overflow: hidden; margin-top: 6px; }
+        .score-bar { background: var(--accent); height: 100%; border-radius: 4px; }
+
+        /* Coluna de Insights */
+        .insights-col {
+            background: var(--surface); padding: 20px; border-radius: 12px;
+            border-left: 3px solid var(--warning);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .insights-col h4 { color: var(--warning); margin-bottom: 5px; font-size: 1rem; }
+        .insight-tag { font-size: 0.85rem; background: var(--bg); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); line-height: 1.4; color: var(--text-muted);}
+
+        /* SWOT */
+        .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .swot-item { background: var(--bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); }
+        .swot-item.s { border-top: 4px solid var(--success); }
+        .swot-item.w { border-top: 4px solid var(--danger); }
+        .swot-item.o { border-top: 4px solid var(--accent); }
+        .swot-item.t { border-top: 4px solid var(--warning); }
+        
+        .muted { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="subtitle">Análise Competitiva</div>
+            <h1>InMediam vs. O Mercado</h1>
+            <p class="desc">Report executivo detalhando o cenário competitivo para o segmento de <strong>Gestão Imobiliária, Fiança e Vistorias</strong>. Contém prints nativos full-page reais baixados localmente.</p>
+        </header>
+        
+        <!-- MATRIZ COMPARATIVA -->
+        <h2 class="section-title">Tabela Comparativa de Funcionalidades</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Funcionalidade / Solução</th>
+                    <th class="target-col">InMediam</th>
+                    <th>Jetimob</th>
+                    <th>Alude</th>
+                    <th>CredPago</th>
+                    <th>Autovist</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Fiança Locatícia Integrada</td>
+                    <td class="target-col check">✓</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="check">✓</td>
+                    <td class="cross">✕</td>
+                </tr>
+                <tr>
+                    <td>App Nativo de Vistoria Digital</td>
+                    <td class="target-col check">✓</td>
+                    <td class="check">✓</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="check">✓</td>
+                </tr>
+                <tr>
+                    <td>Seguro Incêndio Automático</td>
+                    <td class="target-col check">✓</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                </tr>
+                <tr>
+                    <td>Gestão Centralizada (CRM de Locação)</td>
+                    <td class="target-col check">✓</td>
+                    <td class="check">✓</td>
+                    <td class="check">✓</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                </tr>
+                <tr>
+                    <td>Inteligência Artificial (Classificação)</td>
+                    <td class="target-col cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="cross">✕</td>
+                    <td class="check">✓</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- PLAYERS -->
+        <h2 class="section-title">Deep Dive: Os Concorrentes Identificados</h2>
+        <div class="competitor-list">
+            
+            <!-- Jetimob -->
+            <div class="competitor-row">
+                <div class="full-page-scroll">
+                    <img src="jetimob.png" alt="Print Full Page Jetimob" onerror="this.outerHTML='<div class=\'render-notice\'>Renderizando print da Jetimob localmente no background (Puppeteer)... Atualize a página em instantes.</div>'">
+                </div>
+                <div class="comp-info">
+                    <div>
+                        <div class="comp-header">
+                            <h3>Jetimob</h3>
+                            <span class="badge">Direto (Sistema Completo)</span>
+                        </div>
+                        <p class="desc" style="font-size: 0.95rem; margin-top: 0; margin-bottom: 25px;"><strong>Posicionamento:</strong> "O sistema imobiliário que simplifica sua gestão integrando loteadoras e vistorias."</p>
+                        
+                        <div class="metrics">
+                            <div class="metric"><div class="metric-label">Features</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 85%;"></div></div><div class="metric-value">8.5/10</div></div>
+                            <div class="metric"><div class="metric-label">UX Quality</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 70%;"></div></div><div class="metric-value">7.0/10</div></div>
+                            <div class="metric"><div class="metric-label">Market Presence</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 90%;"></div></div><div class="metric-value">9.0/10</div></div>
+                            <div class="metric"><div class="metric-label">Innovation</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 60%;"></div></div><div class="metric-value">6.0/10</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="insights-col">
+                    <h4>Insights & Desk Research</h4>
+                    <div class="insight-tag"><strong>Pricing:</strong> Planos modulares pagos por usuário.</div>
+                    <div class="insight-tag"><strong>Fraqueza (G2/Web):</strong> Alguns usuários sentem a UX datada; faltam integrações financeiras profundas como Fiança 1-click.</div>
+                    <div class="insight-tag"><strong>Força Oculta:</strong> Presença em imobiliárias conservadoras e altíssimo estoque integrado.</div>
+                </div>
+            </div>
+
+            <!-- Alude -->
+            <div class="competitor-row">
+                <div class="full-page-scroll">
+                    <img src="alude.png" alt="Print Full Page Alude" onerror="this.outerHTML='<div class=\'render-notice\'>Renderizando print da Alude localmente no background (Puppeteer)... Atualize a página em instantes.</div>'">
+                </div>
+                <div class="comp-info">
+                    <div>
+                        <div class="comp-header">
+                            <h3>Alude</h3>
+                            <span class="badge">Indireto (Backoffice Ágil)</span>
+                        </div>
+                        <p class="desc" style="font-size: 0.95rem; margin-top: 0; margin-bottom: 25px;"><strong>Posicionamento:</strong> "Tudo num só lugar pelo melhor preço: Seguro e ficha em 60s."</p>
+                        
+                        <div class="metrics">
+                            <div class="metric"><div class="metric-label">Features</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 75%;"></div></div><div class="metric-value">7.5/10</div></div>
+                            <div class="metric"><div class="metric-label">UX Quality</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 95%;"></div></div><div class="metric-value">9.5/10</div></div>
+                            <div class="metric"><div class="metric-label">Market Presence</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 80%;"></div></div><div class="metric-value">8.0/10</div></div>
+                            <div class="metric"><div class="metric-label">Innovation</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 85%;"></div></div><div class="metric-value">8.5/10</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="insights-col">
+                    <h4>Insights & Desk Research</h4>
+                    <div class="insight-tag"><strong>Pricing:</strong> Preços agressivos, muitas vezes modelo Freemium-like.</div>
+                    <div class="insight-tag"><strong>Fraqueza (G2/Web):</strong> Não possuem um app focado exclusivamente nas vistorias prediais.</div>
+                    <div class="insight-tag"><strong>Força Oculta:</strong> Agilidade extrema no onboarding de locatários e checagem de score.</div>
+                </div>
+            </div>
+
+            <!-- CredPago -->
+            <div class="competitor-row">
+                <div class="full-page-scroll">
+                    <img src="credpago.png" alt="Print Full Page CredPago" onerror="this.outerHTML='<div class=\'render-notice\'>Renderizando print da CredPago localmente no background (Puppeteer)... Atualize a página em instantes.</div>'">
+                </div>
+                <div class="comp-info">
+                    <div>
+                        <div class="comp-header">
+                            <h3>CredPago</h3>
+                            <span class="badge">Indireto (Fiança Locatícia/Grupo Loft)</span>
+                        </div>
+                        <p class="desc" style="font-size: 0.95rem; margin-top: 0; margin-bottom: 25px;"><strong>Posicionamento:</strong> "Desburocratizando o mercado imobiliário. Aluguel sem fiador."</p>
+                        
+                        <div class="metrics">
+                            <div class="metric"><div class="metric-label">Features</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 60%;"></div></div><div class="metric-value">6.0/10</div></div>
+                            <div class="metric"><div class="metric-label">UX Quality</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 80%;"></div></div><div class="metric-value">8.0/10</div></div>
+                            <div class="metric"><div class="metric-label">Market Presence</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 100%;"></div></div><div class="metric-value">10.0/10</div></div>
+                            <div class="metric"><div class="metric-label">Innovation</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 70%;"></div></div><div class="metric-value">7.0/10</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="insights-col">
+                    <h4>Insights & Desk Research</h4>
+                    <div class="insight-tag"><strong>Pricing:</strong> Taxa anual baseada em % do aluguel.</div>
+                    <div class="insight-tag"><strong>Fraqueza (G2/Web):</strong> É estritamente financeira, obrigando a imobiliária a usar outro software para vistorias.</div>
+                    <div class="insight-tag"><strong>Força Oculta:</strong> Pertence ao grupo Loft; aceitação hegemônica pelos proprietários e donos de imobiliárias.</div>
+                </div>
+            </div>
+            
+            <!-- Autovist -->
+            <div class="competitor-row">
+                <div class="full-page-scroll">
+                    <img src="autovist.png" alt="Print Full Page Autovist" onerror="this.outerHTML='<div class=\'render-notice\'>Renderizando print do Autovist localmente no background (Puppeteer)... Atualize a página em instantes.</div>'">
+                </div>
+                <div class="comp-info">
+                    <div>
+                        <div class="comp-header">
+                            <h3>Autovist</h3>
+                            <span class="badge">Substituto (Só Vistorias)</span>
+                        </div>
+                        <p class="desc" style="font-size: 0.95rem; margin-top: 0; margin-bottom: 25px;"><strong>Posicionamento:</strong> "Vistorias Digitais com Inteligência Artificial para imóveis, rápidas e precisas."</p>
+                        
+                        <div class="metrics">
+                            <div class="metric"><div class="metric-label">Features (Vistoria)</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 90%;"></div></div><div class="metric-value">9.0/10</div></div>
+                            <div class="metric"><div class="metric-label">UX Quality</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 75%;"></div></div><div class="metric-value">7.5/10</div></div>
+                            <div class="metric"><div class="metric-label">Positioning</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 65%;"></div></div><div class="metric-value">6.5/10</div></div>
+                            <div class="metric"><div class="metric-label">Innovation (AI)</div>
+                                <div class="score-bar-container"><div class="score-bar" style="width: 95%;"></div></div><div class="metric-value">9.5/10</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="insights-col">
+                    <h4>Insights & Desk Research</h4>
+                    <div class="insight-tag"><strong>Pricing:</strong> Tiered por Volume de Vistorias.</div>
+                    <div class="insight-tag"><strong>Fraqueza (G2/Web):</strong> O ponto fraco é não agregar finanças/fiança locatícia. Interface muito focada no perito, não na imobiliária.</div>
+                    <div class="insight-tag"><strong>Força Oculta:</strong> Vende IA como "core" do negócio, seduzindo pelo aspecto tecnológico.</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

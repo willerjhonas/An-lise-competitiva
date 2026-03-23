@@ -32,7 +32,12 @@ Utilize os recursos textuais das páginas e imagens capturadas para identificar:
 Analise profundamente a semântica de como se apresentam.
 Qual palavra/conceito é repetido (Eficiência? Paz? Ansiedade? Inovação? Descomplicado?). Esta variável dita a bússola emocional onde seu cliente deve se encaixar (ou desviar).
 
-### 4. Geração do Artefato HTML (O Gran Finale)
+### 4. Mapa de Fluxo de Conversão (Fricção do Funil)
+Não avalie apenas a vitrine. Determine o que acontece quando o fluxo principal é clicado:
+- Qual a complexidade estrutural do formulário?
+- Pede CNPJ logo de cara (Atrito Alto) ou usa gatilhos de reciprocidade (Atrito Mínimo)?
+
+### 5. Geração do Artefato HTML (O Gran Finale)
 Compile todas essas métricas e gere um documento `analise_competitiva.html` no diretório de trabalho. Use o framework desenvolvido:
 - **Tema:** Anthropic Brand Guidelines (Muitos espaços em branco, laranjas `#d97757` focais e verde acadêmico `#788c5d`, tipografia *Lora* / *Poppins* de alta seriedade e elegância).
 - **Estrutura:** 
@@ -40,7 +45,8 @@ Compile todas essas métricas e gere um documento `analise_competitiva.html` no 
   2. Matriz de Competitividade (Tabela Comparativa em bloco `.table-container` moderno).
   3. Corpo das Análises de Imagem (com suas respectivas legendas e imagens capturadas embedded na mesma pasta).
   4. Análise do Tom de Voz e Copywriting.
-  5. Checklist Prático (Sugestões de melhoria baseada no benchmark).
+  5. Mapa de Fluxo de Conversão (Fricção do Funil).
+  6. Checklist Prático (Sugestões de melhoria baseada no benchmark).
 
 ---
 > **Ativação Padrão do Usuário:** 

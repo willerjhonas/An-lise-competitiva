@@ -12,115 +12,88 @@ async function capture(url, name) {
     await page.goto(url, { waitUntil: 'load', timeout: 60000 });
     console.log(`[SKILL: CRO] URL acessada: ${url}`);
     
-    // Aniquila os modais de cookies no arranque
+    // Destrói ativamente modais de Cookies e LGPD (Ignorando iFrames)
     const nukePopups = async () => {
         try {
             for (const frame of page.frames()) {
-                const acceptBtn = frame.locator('button:has-text("Aceitar"), button:has-text("Concordar"), button:has-text("Entendi"), a:has-text("Aceitar")').first();
-                if (await acceptBtn.count() > 0 && await acceptBtn.isVisible()) {
-                    await acceptBtn.click({ force: true, timeout: 500 }).catch(()=>{});
-                }
+                const b = frame.locator('button:has-text("Aceitar"), button:has-text("Concordar"), a:has-text("Aceitar")').first();
+                if (await b.count() > 0 && await b.isVisible()) await b.click({timeout: 500}).catch(()=>{});
             }
         } catch(e) {}
         
         await page.evaluate(() => {
-            const killTags = ['[id*="cookie"]', '[class*="cookie"]', '[id*="adopt"]', '[id*="consent"]', 'iframe[src*="chat"]', 'iframe[src*="whatsapp"]', '.whatsapp-button'];
-            document.querySelectorAll(killTags.join(',')).forEach(e => {
-                e.style.setProperty('display', 'none', 'important');
-            });
+            const killTags = ['[id*="cookie"]', '[class*="cookie"]', '[id*="adopt"]', 'iframe[src*="chat"]', 'iframe[src*="whatsapp"]', '.whatsapp-button'];
+            document.querySelectorAll(killTags.join(',')).forEach(e => e.style.setProperty('display', 'none', 'important'));
             document.querySelectorAll('iframe').forEach(ifr => {
-                const style = window.getComputedStyle(ifr);
-                if ((style.position === 'fixed' || style.position === 'absolute') && parseInt(style.zIndex||0) > 50) {
-                    ifr.style.setProperty('display', 'none', 'important');
-                }
+                if (window.getComputedStyle(ifr).position === 'fixed') ifr.style.setProperty('display', 'none', 'important');
             });
         });
     };
 
     await nukePopups();
     await page.waitForTimeout(1000);
-    
-    // Garante que o body possa focar para receber as teclas
-    await page.mouse.click(720, 450);
-    
-    // Simula rolagens humanas (PageDown) para engatilhar as "dores" dos Lazy Loads onde quer que o scroll container esteja
-    for (let i = 0; i < 20; i++) {
-        await nukePopups();
-        await page.keyboard.press('PageDown');
-        await page.waitForTimeout(400); 
-    }
-    
-    // Volta rapidamente pro inicio para garantir layout correto
-    await page.keyboard.press('Home');
-    await page.waitForTimeout(2000);
 
-    // CSS Supremo à Prova de Colapsos (React)
-    // Força tudo a mostrar seu overflow de forma segura (height auto + min-height 100% impede colapso de divisões virtuais)
+    // Desliga animacões e abre as travas de root para frameworks (React/Next)
     await page.evaluate(() => {
         const style = document.createElement('style');
         style.innerHTML = `
             * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+                animation: none !important;
+                transition: none !important;
                 scroll-behavior: auto !important;
             }
-            html, body, #root, #__next, .wrapper, .elementor {
+            html, body, #root, #__next, .wrapper {
                 height: auto !important;
                 min-height: 100vh !important;
-                max-height: none !important;
                 overflow: visible !important;
             }
-            /* Conserta sobreposições de menu fixed no meio da página */
-            * {
-               position: static !important;
-            }
-            [data-aos], .elementor-invisible, .fade-in, .lazy {
+            [data-aos], .lazy, .elementor-invisible {
                 opacity: 1 !important;
                 transform: none !important;
                 visibility: visible !important;
             }
         `;
         document.head.appendChild(style);
+    });
+
+    // Scroll simples da janela inteira (window) descendo do header ao footer para carregar lazy-loading
+    let prevHeight = -1;
+    let retries = 0;
+    while(retries < 3) {
+        await nukePopups();
+        const curHeight = await page.evaluate(() => {
+            window.scrollBy({ top: 800, behavior: 'instant' });
+            return document.documentElement.scrollTop;
+        });
+        await page.waitForTimeout(600);
         
-        // Remove 'position: fixed' de TUDO no layout para não repetir blocos fantasma na costura
+        if (curHeight === prevHeight) {
+            retries++;
+        } else {
+            retries = 0; 
+        }
+        prevHeight = curHeight;
+    }
+
+    // Antes de tirar o print, força o scroll de volta ao TOPO 
+    // e MATA os menus "fixed" para não repetirem na imagem inteira do fullPage
+    await page.evaluate(() => {
+        window.scrollTo(0, 0);
         const elements = document.querySelectorAll('*');
         elements.forEach(el => {
-            const computedStyle = window.getComputedStyle(el);
-            if (computedStyle.position === 'fixed' || computedStyle.position === 'sticky') {
+            const style = window.getComputedStyle(el);
+            if (style.position === 'fixed' || style.position === 'sticky') {
                 el.style.setProperty('position', 'absolute', 'important');
             }
-            if (computedStyle.overflow === 'hidden' || computedStyle.overflowY === 'auto' || computedStyle.overflowY === 'scroll') {
-                el.style.setProperty('overflow', 'visible', 'important');
-            }
         });
-        window.scrollTo(0, 0);
-    });
-    
-    await page.waitForTimeout(2000);
-
-    // Identifica o contêiner raiz real e tira o print dele (salvaguarda caso o CSS acima falhe em transbordar pro BODY)
-    const targetSelector = await page.evaluate(() => {
-        let maxScroll = 0;
-        let mainContainer = document.body;
-        document.querySelectorAll('body, html, div, main, section').forEach(el => {
-            if (el.scrollHeight > maxScroll) {
-                maxScroll = el.scrollHeight;
-                mainContainer = el;
-            }
-        });
-        mainContainer.setAttribute('data-cro-target', 'true');
-        return '[data-cro-target="true"]';
     });
 
-    try {
-        await page.locator(targetSelector).screenshot({ path: name });
-        console.log(`[SKILL: CRO] Artefato salvo via Locator: ${name}`);
-    } catch(e) {
-        // Fallback pro fullPage classico
-        await page.screenshot({ path: name, fullPage: true });
-        console.log(`[SKILL: CRO] Artefato salvo via FullPage: ${name}`);
-    }
+    await page.waitForTimeout(1000); // Aguarda layout estabilizar no topo
+
+    // O Playwright sozinho cuida da captura da página inteira
+    await page.screenshot({ path: name, fullPage: true });
+    console.log(`[SKILL: CRO] Artefato salvo com sucesso: ${name}`);
+
   } catch(e) {
     console.log(`[SKILL: CRO] Erro ao capturar ${name}: ${e.message}`);
   } finally {
@@ -132,5 +105,5 @@ const args = process.argv.slice(2);
 if (args.length >= 2) {
     capture(args[0], args[1]);
 } else {
-    console.log("Uso: node capture.mjs <URL> <NOME_DO_ARQUIVO.png>");
+    console.log("Uso: node capture.mjs <URL> <NOME.png>");
 }

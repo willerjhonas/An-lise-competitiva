@@ -14,18 +14,34 @@ async function capture(url, name) {
     await page.goto(url, { waitUntil: 'load', timeout: 60000 });
     console.log(`[SKILL: CRO] URL acessada: ${url}`);
     
-    // Auto-click em botões de cookies, LGPD e remoção de Chatbots agressivos
-    await page.evaluate(() => {
-        const btns = Array.from(document.querySelectorAll('button, a, div[role="button"]'));
-        btns.forEach(btn => {
-            if (/aceitar|concordo|entendi|accept/i.test(btn.innerText)) {
-                try { btn.click(); } catch(e){}
-            }
+    // Função que destrói popups ativamente, varrendo texto e z-index
+    const nukePopups = async () => {
+        await page.evaluate(() => {
+            // Tenta clicar em "Aceitar"
+            const btns = Array.from(document.querySelectorAll('button, a, div[role="button"], span'));
+            btns.forEach(btn => {
+                const text = (btn.innerText || '').toLowerCase().trim();
+                if (['aceitar', 'aceito', 'concordo', 'entendi', 'aceitar cookies', 'permitir todos', 'aceitar todos'].includes(text)) {
+                    if (btn.tagName === 'A') btn.removeAttribute('href');
+                    try { btn.click(); } catch(e){}
+                }
+            });
+            // Oculta blocos fixed/sticky que falem de cookies/lgpd/consentimento
+            Array.from(document.querySelectorAll('*')).forEach(el => {
+                const style = window.getComputedStyle(el);
+                if (style.position === 'fixed' || style.position === 'sticky') {
+                    const text = (el.innerText || '').toLowerCase();
+                    const idCls = (el.id + ' ' + el.className).toLowerCase();
+                    if (text.includes('cookie') || text.includes('privacidade') || text.includes('lgpd') || text.includes('consentimento') || idCls.includes('chat') || idCls.includes('whatsapp')) {
+                        el.style.setProperty('display', 'none', 'important');
+                    }
+                }
+            });
         });
-        const killTags = ['#onetrust-consent-sdk', '#usercentrics-root', 'iframe', '.blip-chat-container', '#adopt-accept-all-button', '.cookie-banner'];
-        document.querySelectorAll(killTags.join(',')).forEach(e => e.remove());
-    });
-    await page.waitForTimeout(2000); // Aguarda a animação do cookie sumir
+    };
+
+    await nukePopups();
+    await page.waitForTimeout(1000);
     
     // Injeta CSS para desligar animações e revelar todo o conteúdo instantaneamente
     await page.evaluate(() => {
@@ -37,7 +53,7 @@ async function capture(url, name) {
                 transition-duration: 0.01ms !important;
                 scroll-behavior: auto !important;
             }
-            html, body, #root, #__next, main {
+            html, body {
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
@@ -54,6 +70,7 @@ async function capture(url, name) {
     // Scroll suave até o rodapé para engatilhar as imagens (lazy load)
     let prevHeight = 0;
     while(true) {
+        await nukePopups();
         const curHeight = await page.evaluate(() => {
             window.scrollBy({ top: 600, behavior: 'auto' });
             return document.documentElement.scrollTop;

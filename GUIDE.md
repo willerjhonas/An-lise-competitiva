@@ -26,28 +26,29 @@ Contém manuais detalhados de uso e especificações técnicas sobre como o moto
 - **`README.md`**: A página de entrada do projeto no GitHub.
 - **`.gitignore`**: As regras de privacidade. Ele garante que seus dados de clientes (`data/`) nunca vazem para a internet.
 - **`package.json`**: Lista as ferramentas de infraestrutura (como o Playwright) que usamos para capturar as telas.
+- **`.claude` & `.windsurf`**: São as "pastas de metadados" que guardam o contexto da minha inteligência. Elas ajudam a IA a lembrar como o seu projeto funciona. **Importante**: Não recomendo deletá-las se quiser manter o histórico de decisões do agente.
 
 ---
 
-## 🚀 Como usar: O Fluxo de Ouro
+## 🚀 Como usar: O Guia de Comandos
 
-Para realizar uma análise impecável, siga estes 3 passos:
+Aqui estão os "prompts" mágicos que você deve usar para que eu opere cada módulo com perfeição:
 
 ### 1️⃣ Descoberta (Market Discovery)
-Peça para o agente: *"Faça uma pesquisa de concorrentes para a empresa X no nicho Y"*.
-- **O que acontece:** Eu uso a skill `cro-discovery` para mapear os players, suas propostas de valor e gerar o arquivo de base.
+Peça isto:
+> *"Pesquise 5 concorrentes diretos no nicho de [Nicho, ex: Proteção Veicular] para a empresa [Nome do Cliente]. Gere o competitors.json na pasta do cliente."*
 
 ### 2️⃣ Captura (High-Def Capture)
-Peça para o agente: *"Capture as telas dos concorrentes do arquivo da empresa X"*.
-- **O que acontece:** Eu uso a skill `cro-capture` para entrar em cada site, ignorar banners de cookies e tirar "fotos" perfeitas de 1440px.
+Peça isto:
+> *"Use o arquivo competitors.json da pasta [Nome do Cliente] para capturar screenshots de todos os concorrentes. Use resolução full-page de 1440px."*
 
 ### 3️⃣ Análise (Strategic Intelligence)
-Peça para o agente: *"Gere o relatório final de CRO para a empresa X"*.
-- **O que acontece:** Eu uso a skill `cro-analyzer` + o `Master Template` para cruzar os dados, identificar atritos de UX e escrever os aprendizados estratégicos.
+Peça isto:
+> *"Gere o relatório final de análise competitiva para [Nome do Cliente] usando o Master Template v2.0. Foque em identificar Atritos e Aprendizados estratégicos de UX/UI."*
 
 ---
 
-## 💡 Dicas de Mestre
+## 💡 Dicas de Mestre: Como ter a melhor experiência
 
 - **Nunca use "Landing Page"**: O sistema foi padronizado para usar o termo **"Site"**, garantindo um tom mais corporativo e institucional.
 - **Revise o JSON**: Entre o passo 1 e 2, dê uma olhada no `competitors.json`. Você pode remover ou adicionar URLs manualmente se quiser refinar o benchmarking.

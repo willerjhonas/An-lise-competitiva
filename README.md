@@ -24,6 +24,7 @@ graph TD
 -   **CRO Discovery**: Pesquisa automatizada baseada em IA para mapear o ecossistema de concorrentes.
 -   **CRO Capture**: Engine de renderização para captura de UI ignorando popups e modais.
 -   **CRO Analyzer**: Escaner analítico que gera relatórios HTML interativos com benchmarking.
+-   **SquirrelScan Audit**: Auditoria profunda de SEO técnico, performance e segurança com mais de 230 regras.
 -   **Estrutura Escalável**: Organização modular de clientes e ativos de análise.
 
 ## 📁 Estrutura do Projeto
@@ -46,6 +47,7 @@ Para executar uma análise completa, siga o workflow definido:
 | Componente | Tecnologia | Papel |
 | :--- | :--- | :--- |
 | **Logic** | Node.js / Playwright | Automação e Scraping |
+| **Audit** | SquirrelScan CLI | Auditoria Técnica Profunda |
 | **Analysis** | Agentic AI Skills | Diagnóstico e Heurísticas |
 | **Design** | Editorial High-Fidelity | UX Premium |
 | **Storage** | Estrutura Local | Persistência de Dados |

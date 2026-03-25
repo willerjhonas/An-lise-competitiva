@@ -22,5 +22,9 @@ Este fluxo de trabalho descreve os passos para realizar uma análise competitiva
    - Use a skill `cro-analyzer` para analisar as screenshots e o `competitors.json`.
    - O agente aplicará heurísticas de conversão e gerará um relatório HTML premium.
 
-4. **Organização dos Resultados**
-   - Mova os arquivos gerados para a pasta `data/[Nome do Cliente]/`.
+4. **Auditoria Técnica (SquirrelScan)**
+   - Use a skill `audit-website` para realizar uma varredura profunda de SEO, performance e segurança no site principal.
+   - Isso fornecerá dados de saúde do site complementares à análise de UX.
+
+5. **Organização dos Resultados**
+   - Mova os arquivos gerados (relatórios, screenshots e logs de audit) para a pasta `data/[Nome do Cliente]/`.

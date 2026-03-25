@@ -43,7 +43,7 @@ Peça para o agente: *"Capture as telas dos concorrentes do arquivo da empresa X
 
 ### 3️⃣ Análise Estratégica & Técnica (Full Assessment)
 Peça para o agente: *"Gere o relatório de CRO e faça uma auditoria técnica para a empresa X"*.
-- **O que acontece:** Eu executo o `cro-analyzer` + o `audit-website` simultaneamente. Isso cruza dados de UX (heurísticas) com dados técnicos (mais de 230 regras de SEO e performance) para gerar um diagnóstico blindado.
+- **O que acontece:** Eu executo o `cro-analyzer` + o `audit-website` simultaneamente. Uso o **Master Template** (`templates/`) para cruzar os dados de UX (heurísticas) com dados técnicos (mais de 230 regras de SEO e performance) para identificar atritos de UX, escrever aprendizados estratégicos e gerar um diagnóstico unificado e visualmente premium.
 
 ---
 

@@ -21,7 +21,7 @@ Este fluxo de trabalho descreve os passos para realizar uma análise competitiva
 3. **Análise Estratégica & Técnica**
    - Use a skill `audit-website` para realizar uma varredura profunda de SEO, performance e segurança no site principal.
    - Use a skill `cro-analyzer` para analisar as screenshots e o `competitors.json`.
-   - O agente aplicará heurísticas de conversão e gerará um relatório unificado de inteligência competitiva e saúde técnica.
+   - O agente aplicará heurísticas de conversão usando o **Master Template** para identificar atritos de UX, escrever aprendizados estratégicos e gerar um relatório unificado de inteligência competitiva e saúde técnica.
 
 4. **Organização dos Resultados**
    - Mova os arquivos gerados (relatórios, screenshots e logs de audit) para a pasta `data/[Nome do Cliente]/`.
